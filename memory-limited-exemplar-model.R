@@ -33,6 +33,7 @@
 
 sample.training.data <- data.frame(x=c(0.5,0.6), y=c(0.4,0.3), category=c(1,2))
 
+#my code below
 exemplar.memory.limited <- function(training.data, x.val, y.val, target.category, sensitivity, decay.rate){
   training.data$weight <- sapply(seq (from = (nrow(training.data) - 1), to = 0, by = -1), 
     function(position){return (1*decay.rate^position)})
@@ -43,6 +44,7 @@ exemplar.memory.limited <- function(training.data, x.val, y.val, target.category
   return (sum (subset(training.data, category == target.category)$memweight) / sum (training.data$memweight)) 
   }
 
+#Thomas's code below
 exemplar.memory.limited <- function(training.data, x.val, y.val, target.category, sensitivity, decay.rate){
   td <- training.data
   td$weight <- sapply(seq(from= (nrow(td) - 1), to= 0, by= -1), 
