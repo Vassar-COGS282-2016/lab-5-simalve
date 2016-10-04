@@ -33,22 +33,30 @@
 
 sample.training.data <- data.frame(x=c(0.5,0.6), y=c(0.4,0.3), category=c(1,2))
 
-# - Then, multiply each similarity score by its weight to get the memory-weighted similarity.
-# - Finally, add up all the similarity scores for the target category, and then divide by the
-#   total similarity to get the predicted probability of a response for the target category.
-# - Return this probability.
-
 exemplar.memory.limited <- function(training.data, x.val, y.val, target.category, sensitivity, decay.rate){
   training.data$weight <- sapply(seq (from = (nrow(training.data) - 1), to = 0, by = -1), 
-    function(position){ 1*decay.rate^position})
-  training.data$distance <- mapply(function(x,y){
-    distance <- sqrt((x-x.val)^2 + (y-y.val)^2)
-    return (distance)}, training.data$x, training.data$y)
+    function(position){return (1*decay.rate^position)})
+    training.data$distance <- mapply(function(x,y){
+    return (sqrt((x-x.val)^2 + (y-y.val)^2))}, training.data$x, training.data$y)
   training.data$similarity <- exp(-sensitivity*training.data$distance)
   training.data$memweight <- training.data$similarity * training.data$weight
-  return (sum (subset(training.data, category == target.category)$memweight) / sum (target.category$memweight)) 
+  return (sum (subset(training.data, category == target.category)$memweight) / sum (training.data$memweight)) 
   }
 
+exemplar.memory.limited <- function(training.data, x.val, y.val, target.category, sensitivity, decay.rate){
+  td <- training.data
+  td$weight <- sapply(seq(from= (nrow(td) - 1), to= 0, by= -1), 
+                      function(position){return(1*decay.rate^position)})
+  td$distance <- mapply(function(x, y){return (sqrt((x-x.val)^2 + (y-y.val)^2 ))}, 
+                        td$x, td$y)
+  td$similarity <- sapply(td$distance, function(distance){return(exp(-sensitivity*distance))})
+  td$memory.weighted.similarity <- mapply(function(similarity, weight){return(similarity*weight)},
+                                          td$similarity, td$weight)
+  predicted.probability <- sum(subset(td, category==target.category)$memory.weighted.similarity)/
+    sum(td$memory.weighted.similarity)
+  return(predicted.probability)
+}
+exemplar.memory.limited (sample.training.data, 3, 5 , 1, 0.8, 0.4)
 # Once you have the model implemented, write the log-likelihood function for a set of data.
 # The set of data for the model will look like this:
 
