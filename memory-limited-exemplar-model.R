@@ -33,7 +33,7 @@
 
 sample.training.data <- data.frame(x=c(0.5,0.6), y=c(0.4,0.3), category=c(1,2))
 
-#my code below
+
 exemplar.memory.limited <- function(training.data, x.val, y.val, target.category, sensitivity, decay.rate){
   training.data$weight <- sapply(seq (from = (nrow(training.data) - 1), to = 0, by = -1), 
     function(position){return (1*decay.rate^position)})
@@ -44,20 +44,21 @@ exemplar.memory.limited <- function(training.data, x.val, y.val, target.category
   return (sum (subset(training.data, category == target.category)$memweight) / sum (training.data$memweight)) 
   }
 
-#Thomas's code below
-exemplar.memory.limited <- function(training.data, x.val, y.val, target.category, sensitivity, decay.rate){
-  td <- training.data
-  td$weight <- sapply(seq(from= (nrow(td) - 1), to= 0, by= -1), 
-                      function(position){return(1*decay.rate^position)})
-  td$distance <- mapply(function(x, y){return (sqrt((x-x.val)^2 + (y-y.val)^2 ))}, 
-                        td$x, td$y)
-  td$similarity <- sapply(td$distance, function(distance){return(exp(-sensitivity*distance))})
-  td$memory.weighted.similarity <- mapply(function(similarity, weight){return(similarity*weight)},
-                                          td$similarity, td$weight)
-  predicted.probability <- sum(subset(td, category==target.category)$memory.weighted.similarity)/
-    sum(td$memory.weighted.similarity)
-  return(predicted.probability)
-}
+
+#exemplar.memory.limited <- function(training.data, x.val, y.val, target.category, sensitivity, decay.rate){
+  #td <- training.data
+  #td$weight <- sapply(seq(from= (nrow(td) - 1), to= 0, by= -1), 
+  #                    function(position){return(1*decay.rate^position)})
+  #td$distance <- mapply(function(x, y){return (sqrt((x-x.val)^2 + (y-y.val)^2 ))}, 
+   #                     td$x, td$y)
+  #td$similarity <- sapply(td$distance, function(distance){return(exp(-sensitivity*distance))})
+  #td$memory.weighted.similarity <- mapply(function(similarity, weight){return(similarity*weight)},
+  #                                        td$similarity, td$weight)
+  #predicted.probability <- sum(subset(td, category==target.category)$memory.weighted.similarity)/
+    #sum(td$memory.weighted.similarity)
+  #return(predicted.probability)
+#}
+
 exemplar.memory.limited (sample.training.data, 3, 5 , 1, 0.8, 0.4)
 # Once you have the model implemented, write the log-likelihood function for a set of data.
 # The set of data for the model will look like this:
@@ -80,17 +81,31 @@ sample.data.set[4,]
 # is certainly possible with both. (For mapply, pass it the row number that you are on...)
 
 # Don't forget that decay rate should be between 0 and 1, and that sensitivity should be > 0.
-
+all.data <- read.csv('experiment-data.csv')
 exemplar.memory.log.likelihood <- function(all.data, sensitivity, decay.rate){
   if ((decay.rate < 0) || (decay.rate > 1) || (sensitivity < 0) ){
     return (NA)}
   all.data$predprob <- 0.5
       for (i in 2: nrow(all.data)){
-        if (all.data$correct[i] == TRUE){all.data$predprob[i] <- exemplar.memory.limited (all.data[0:(i-1)], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate)}
-        else {all.data$predprob[i] <- (1 - exemplar.memory.limited (all.data[0:(i-1)], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate))}
+        if (all.data$correct[i] == TRUE){all.data$predprob[i] <- exemplar.memory.limited (all.data[0:(i-1),0:(i-1)], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate)}
+        else {all.data$predprob[i] <- (1 - exemplar.memory.limited (all.data[0:(i-1), 0:(i-1)], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate))}
       i <- i + 1
       }
-  return (sum(log (all.data$predprob)))}
+  return (sum(log (all.data$predprob)))
+} 
+
+#exemplar.memory.log.likelihood <- function(all.data, sensitivity, decay.rate){
+  #if ((decay.rate > 1) || (decay.rate < 0) || (sensitivity < 0)){
+    #return(NA)}
+  #all.data$predicted.prob <- .5
+  #for(i in 2: nrow(all.data)){
+   # if (all.data$correct[i] == TRUE){
+    #  all.data$predicted.prob[i] <-exemplar.memory.limited(all.data[0:(i-1),], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate)}
+    #else {all.data$predicted.prob[i] <- (1- exemplar.memory.limited(all.data[0:(i-1),], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate))} 
+    #i <- i + 1
+  #}
+  #return(sum(log(all.data$predicted.prob)))
+#}
 
 exemplar.memory.log.likelihood (all.data, 0.4, 0.2)
 

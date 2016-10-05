@@ -8,6 +8,24 @@ rm(sample.training.data)
 # Note: In optim() you can tell it to display updates as it goes with:
 # optim( ... , control=list(trace=4))
 
+linear.model.error <- function(parameters){
+  b <- parameters[1]
+  m <- parameters[2]
+  
+  predicted.y <- b + m*x
+  
+  sq.error <- (y - predicted.y)^2
+  rmse <- sqrt(mean(sq.error))
+  
+  return(rmse)
+}
+
+optim4data <- function(parameters){
+  sensitivity <- parameters[1]
+  decay.rate <- parameters[2]
+  
+}
+
 # Now try fitting a restricted version of the model, where we assume there is no decay.
 # Fix the decay.rate parameter to 1, and use optim to fit the sensitivity parameter.
 # Note that you will need to use method="Brent" in optim() instead of Nelder-Mead. 
