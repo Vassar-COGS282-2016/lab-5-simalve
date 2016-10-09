@@ -87,8 +87,8 @@ exemplar.memory.log.likelihood <- function(all.data, sensitivity, decay.rate){
     return (NA)}
   all.data$predprob <- 0.5
       for (i in 2: nrow(all.data)){
-        if (all.data$correct[i] == TRUE){all.data$predprob[i] <- exemplar.memory.limited (all.data[0:(i-1),0:(i-1)], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate)}
-        else {all.data$predprob[i] <- (1 - exemplar.memory.limited (all.data[0:(i-1), 0:(i-1)], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate))}
+        if (all.data$correct[i] == TRUE){all.data$predprob[i] <- exemplar.memory.limited (all.data[0:(i-1),], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate)}
+        else {all.data$predprob[i] <- (1 - exemplar.memory.limited (all.data[0:(i-1), ], all.data$x[i], all.data$y[i], all.data$category[i], sensitivity, decay.rate))}
       i <- i + 1
       }
   return (sum(log (all.data$predprob)))
