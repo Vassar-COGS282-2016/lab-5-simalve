@@ -83,7 +83,7 @@ sample.data.set[4,]
 # Don't forget that decay rate should be between 0 and 1, and that sensitivity should be > 0.
 all.data <- read.csv('experiment-data.csv')
 exemplar.memory.log.likelihood <- function(all.data, sensitivity, decay.rate){
-  if ((decay.rate < 0) || (decay.rate > 1) || (sensitivity < 0) ){
+  if ((decay.rate > 0) || (decay.rate <= 1) || (sensitivity < 0) ){
     return (NA)}
   all.data$predprob <- 0.5
       for (i in 2: nrow(all.data)){
